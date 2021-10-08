@@ -39,8 +39,11 @@ class _MainState extends State<Main> {
 
   void changePage(int index){
     controller.jumpToPage(index);
-    currentPage = index;
+    setState(() {
+      currentPage = index;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {

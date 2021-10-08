@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hku_guide/pages/BuildingPage.dart';
+import 'package:hku_guide/pages/ClassPage.dart';
 import 'package:hku_guide/pages/HomePage.dart';
-import 'package:hku_guide/pages/MapPage.dart';
 import 'package:hku_guide/pages/SettingPage.dart';
 import 'package:hku_guide/pages/TipPage.dart';
 
@@ -24,12 +24,13 @@ class _PageFrameState extends State<PageFrame>{
   @override
   Widget build(BuildContext context) {
 
+
     return PageView(
       physics: NeverScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
       controller: widget.controller,
       children: [
-        MapPage(),
+        ClassPage(),
         BuildingPage(),
         HomePage(),
         TipPage(),

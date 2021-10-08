@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 
-class MapPage extends StatefulWidget{
+class ClassPage extends StatefulWidget{
 
 
   @override
-  State<StatefulWidget> createState() => _MapPageState();
+  State<StatefulWidget> createState() => _ClassPageState();
 }
 
-class _MapPageState extends State<MapPage>{
+class _ClassPageState extends State<ClassPage>{
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class _MapPageState extends State<MapPage>{
       height: double.infinity,
       width: double.infinity,
       color: Colors.blue,
-      child: Text('MAP'),
+      child: Text('CLASS'),
     );
   }
 }
