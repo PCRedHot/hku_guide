@@ -89,11 +89,11 @@ class _MainState extends State<Main> {
     Color unselectedColor = Color.fromRGBO(240, 240, 240, 0.7);
     return BottomNavigationBar(
       items: <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), label: 'Class',),
-        BottomNavigationBarItem(icon: Icon(Icons.location_city_outlined), label: 'Building',),
+        BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), label: 'Courses',),
+        BottomNavigationBarItem(icon: Icon(Icons.location_city_outlined), label: 'Buildings',),
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',),
         BottomNavigationBarItem(icon: Icon(Icons.wb_incandescent_outlined), label: 'Tips'),
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Setting'),
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
       ],
       backgroundColor: colorThemeDark,
       type: BottomNavigationBarType.fixed,

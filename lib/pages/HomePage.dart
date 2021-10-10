@@ -2,7 +2,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:hku_guide/classes/DateTimeClasses.dart';
 import 'package:hku_guide/classes/OnlineJsonClasses.dart';
+import 'package:hku_guide/tools/DataFetch.dart';
 import 'package:hku_guide/tools/DataManager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class HomePage extends StatefulWidget{
@@ -32,18 +34,12 @@ class _HomePageState extends State<HomePage>{
 
         //TODO remove below
         print(enrolledClasses.map((element) => element.title).toList());
-        enrolledClasses.forEach((enrolledClass){
-          CustomPeriodTime period = enrolledClass.getLessonPeriodOnDate(CustomDate.fromString('2021-10-18'));
-          if (period != null) print("${enrolledClass.title}: $period");
-        });
+        print(getScheduleStringOnDate(CustomDate.today()));
       });
     }//TODO remove below
     else{
       print(enrolledClasses.map((element) => element.title).toList());
-      enrolledClasses.forEach((enrolledClass){
-        CustomPeriodTime period = enrolledClass.getLessonPeriodOnDate(CustomDate.fromString('2021-10-18'));
-        if (period != null) print("${enrolledClass.title}: $period");
-      });
+      print(getScheduleStringOnDate(CustomDate.today()));
     }
   }
 
@@ -66,7 +62,8 @@ class _HomePageState extends State<HomePage>{
       padding: const EdgeInsets.fromLTRB(0, 15.0, 0, 5.0),
       child: CarouselSlider(
         options: CarouselOptions(
-          aspectRatio: 3.5,
+          height: 150,
+          //aspectRatio: 3.5,
           initialPage: 0,
           viewportFraction: 1.0,
           enableInfiniteScroll: true,
@@ -88,43 +85,43 @@ class _HomePageState extends State<HomePage>{
   }
 
   Widget _getAcademicCalendarWidget(){
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-            image: AssetImage('assets/images/calendar_widget.png'),
-            fit: BoxFit.fitWidth
+    return GestureDetector(
+      onTap: _showAcademicCalendar,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20.0),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage('assets/images/calendar_widget.png'),
+              fit: BoxFit.fitWidth
+          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
         ),
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text('Academic\n    Calendar',
-            textAlign: TextAlign.start,
-            textDirection: TextDirection.ltr,
-            style: TextStyle(
-              color: Colors.deepOrangeAccent,
-              fontSize: 30,
-              fontWeight: FontWeight.w900,
-              shadows: [
-                Shadow(
-                  color: colorThemeDark,
-                  blurRadius: 6,
-                  offset: Offset(-2, 2),
-                ),
-              ]
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Academic\n     Calendar',
+              textAlign: TextAlign.start,
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                color: Colors.deepOrangeAccent,
+                fontSize: 30,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.0,
+                shadows: [
+                  Shadow(
+                    color: colorThemeDark,
+                    blurRadius: 8,
+                    offset: Offset(-2, 2),
+                  ),
+                ]
+              ),
             ),
           ),
         ),
       ),
     );
-  }
-
-  String getComingThreeSchedulesString(List<EnrolledClass> enrolledClasses){
-
   }
 
   Widget _getTimetableWidget(){
@@ -140,29 +137,61 @@ class _HomePageState extends State<HomePage>{
           width: double.infinity,
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text('My Coming Schedule',
-                  textAlign: TextAlign.end,
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                      color: Color.fromRGBO(246, 239, 238, 1.0),
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black,
-                          blurRadius: 5,
-                          offset: Offset(-2, 2),
-                        ),
-                      ]
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 5.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('Today\'s Schedule',
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    style: TextStyle(
+                        color: Color.fromRGBO(246, 239, 238, 1.0),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black,
+                            blurRadius: 5,
+                            offset: Offset(-2, 2),
+                          ),
+                        ]
+                    ),
                   ),
                 ),
               ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(getScheduleStringOnDate(CustomDate.today()).map((e) => e = '- $e').toList().join('\n'),
+                    style: TextStyle(
+                      color: Color.fromRGBO(240, 236, 232, 1.0),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    )
+                  )
+                ),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+
+  List<String> getScheduleStringOnDate(CustomDate d){
+    List stringAndTime = [];
+    enrolledClasses.forEach((ec) {
+      List lesson = ec.getLessonOnDate(d);
+      if (lesson == null) return;
+      stringAndTime.add(['${ec.courseCode}: ${lesson[1].period.toString()} ${lesson[0].venue == '' ? '' : 'at ${lesson[0].venue}'}', lesson[1].period]);
+    });
+    stringAndTime.sort((a, b) => a[1].compareTo(b[1]));
+    return stringAndTime.map((e) => e[0] as String).toList();
+  }
+
+  void _showAcademicCalendar() async{
+    launch(await getCalendarURLString());
   }
 }

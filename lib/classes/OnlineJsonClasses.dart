@@ -315,7 +315,7 @@ class EnrolledClass {
     'lessonTimes': lessonTimes.map((e) => e.toJson()).toList()
   };
 
-  CustomPeriodTime getLessonPeriodOnDate(CustomDate date){
+   List getLessonOnDate(CustomDate date){
 
     List<LessonTime> validLessonTimes = [];
     this.lessonTimes.forEach((lt) {
@@ -323,16 +323,16 @@ class EnrolledClass {
       if (lt.isBetweenDate(date)) validLessonTimes.add(lt);
     });
 
-    List<Timeslot> validTimeslots = [];
+    List validTimeslots = [];
     validLessonTimes.forEach((lt) {
       lt.timeslots.forEach((ts) {
-        if (ts.hasLessonOnDate(date)) validTimeslots.add(ts);
+        if (ts.hasLessonOnDate(date)) validTimeslots.add([lt, ts]);
       });
     });
 
     assert(validTimeslots.length <= 1);
     if (validTimeslots.length == 0) return null;
-    return validTimeslots[0].period;
+    return validTimeslots[0];
   }
 
   @override

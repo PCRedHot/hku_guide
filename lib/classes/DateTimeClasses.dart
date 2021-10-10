@@ -33,6 +33,9 @@ class CustomDate {
     day: dt.day,
   );
 
+  factory CustomDate.today() => CustomDate.fromDateTime(DateTime.now());
+  //factory CustomDate.today() => CustomDate.fromString('2021-10-18');
+
   bool isLaterThan(CustomDate d){
     if (this.year > d.year) return true;
     if (this.year < d.year) return false;
