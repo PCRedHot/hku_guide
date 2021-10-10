@@ -7,6 +7,9 @@ final String buildingVersionURL = "https://pcredhot.github.io/hku_guide/building
 final String classURL = "https://pcredhot.github.io/hku_guide/timetable.json";
 final String classVersionURL = "https://pcredhot.github.io/hku_guide/timetable_version.json";
 
+final String calendarVersionURL = "https://pcredhot.github.io/hku_guide/calendar/calendar_version.json";
+final String Function(String fileName) calendarURL = (String fileName) => "https://pcredhot.github.io/hku_guide/calendar/$fileName";
+
 Future<String> fetchBuildingDataVersionFromAPI() async{
   final response = await http.get(
     Uri.parse(buildingVersionURL)

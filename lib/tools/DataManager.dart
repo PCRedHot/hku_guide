@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:hku_guide/classes/OnlineJsonClasses.dart';
 import 'package:hku_guide/tools/DataFetch.dart';
 import 'package:hku_guide/tools/LocalDoc.dart';
 
@@ -59,4 +60,14 @@ Future<Map> updateClassData() async {
   final onlineClassData = await fetchClassDataFromAPI();
   writeClassDataToLocal(onlineClassData);
   return jsonDecode(onlineClassData);
+}
+
+Future<List<EnrolledClass>> getEnrolledClassData() async{
+  print('Get Enrolled Class Data From File');
+  return getEnrolledClassesFromLocal();
+}
+
+void updateEnrolledClassData(List<EnrolledClass> enrolledClasses) async{
+  print('Update Enrolled Class Data To Local');
+  writeEnrolledClassesToLocal(enrolledClasses);
 }

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:hku_guide/classes/OnlineJsonClasses.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -8,6 +10,7 @@ final String buildingVersionFile = 'building_version.txt';
 final String buildingFile = 'building.txt';
 final String classVersionFile = 'class_version.txt';
 final String classFile = 'class.txt';
+final String enrolledClassFile = 'enrolledClass.txt';
 
 Future<String> get _localPath async {
   final directory = await getApplicationDocumentsDirectory();
@@ -93,4 +96,22 @@ Future<Map> getClassDataFromLocal() async{
 
 Future<void> writeClassDataToLocal(String data) async{
   writeFileWithName(classFile, data);
+}
+
+Future<List<EnrolledClass>> getEnrolledClassesFromLocal() async{
+  try{
+    final file = await getLocalFile(enrolledClassFile);
+    final contents = await file.readAsString();
+    print(jsonDecode(contents));
+    List<dynamic> jsonObjects = jsonDecode(contents);
+    return jsonObjects.map((e) => EnrolledClass.fromJson(e)).toList();
+  } catch (e, stacktrace){
+    print(e);
+    print(stacktrace);
+    return [];
+  }
+}
+
+void writeEnrolledClassesToLocal(List<EnrolledClass> enrolledClasses) async{
+  writeFileWithName(enrolledClassFile, jsonEncode(enrolledClasses.map((e) => e.toJson()).toList()));
 }
