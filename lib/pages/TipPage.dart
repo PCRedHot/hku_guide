@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TipPage extends StatelessWidget{
   
@@ -35,14 +36,17 @@ class TipPage extends StatelessWidget{
           borderRadius: BorderRadius.all(Radius.circular(20.0))
         ),
       ),
-      Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/bad_weather.png'),
-            fit: BoxFit.cover
-            ),
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(20.0))
+      GestureDetector(
+        onTap: (){launch('http://www.exam.hku.hk/a2_badweather.php');},
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bad_weather.png'),
+              fit: BoxFit.cover
+              ),
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(20.0))
+          ),
         ),
       ),
     ];
