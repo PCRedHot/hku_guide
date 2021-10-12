@@ -16,7 +16,7 @@ class TipPage extends StatelessWidget{
             enableInfiniteScroll: true,
             reverse: false,
             autoPlay: true,
-            autoPlayInterval: Duration(seconds: 10),
+            autoPlayInterval: Duration(seconds: 5),
             autoPlayAnimationDuration: Duration(milliseconds: 800),
             autoPlayCurve: Curves.fastOutSlowIn,
             scrollDirection: Axis.horizontal,
@@ -30,25 +30,23 @@ class TipPage extends StatelessWidget{
 
   List<Widget> _getTipsWidgets(){
     return [
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(20.0))
-        ),
-      ),
-      GestureDetector(
-        onTap: (){launch('http://www.exam.hku.hk/a2_badweather.php');},
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/bad_weather.png'),
-              fit: BoxFit.cover
-              ),
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(20.0))
+      ['bad_weather.png', 'http://www.exam.hku.hk/a2_badweather.php'],
+      ['cc_queue.png', 'https://sweb.hku.hk/ccacad/ccc_appl/enrol_stat.html'],
+      ['important_date.png', 'https://aao.hku.hk/important-academic-dates/'],
+    ].map((item) =>
+        GestureDetector(
+          onTap: (){launch(item[1]);},
+          child: Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/images/${item[0]}'),
+                    fit: BoxFit.cover
+                ),
+                color: Colors.transparent,
+                borderRadius: BorderRadius.all(Radius.circular(20.0))
+            ),
           ),
-        ),
-      ),
-    ];
+        )
+    ).toList();
   }
 }

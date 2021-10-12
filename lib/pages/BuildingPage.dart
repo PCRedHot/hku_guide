@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hku_guide/classes/AppSettingClass.dart';
 import 'package:hku_guide/classes/OnlineJsonClasses.dart';
 import 'package:hku_guide/tools/DataManager.dart';
 import 'package:hku_guide/tools/LocationTools.dart';
@@ -19,6 +20,7 @@ class BuildingPage extends StatefulWidget{
 class _BuildingPageState extends State<BuildingPage>{
 
   List<Building> buildingData;
+  AppSetting appSetting;
 
   GeolocatorPlatform _geolocator;
   Position _position;
@@ -50,10 +52,29 @@ class _BuildingPageState extends State<BuildingPage>{
      });
     }
 
+    appSetting = PageStorage.of(context).readState(context, identifier: 'appSetting');
+    if (appSetting == null){
+      appSetting = AppSetting.defaultSetting();
+      getAppSettingData().then((setting) =>
+          setState(() {
+            appSetting = setting;
+            appSetting.checkNull();
+            PageStorage.of(context).writeState(context, appSetting, identifier: 'appSetting');
+          })
+      );
+    }else{
+      appSetting.checkNull();
+    }
+
     // Initialise Geolocator
     _geolocator = GeolocatorPlatform.instance;
     _positionStream = _geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.bestForNavigation, timeInterval: 5000).listen((Position position) {
-      print('Position Get: ${position.toString()}');
+      if (!appSetting.showNearbyBuilding) {
+        this._positionStream.cancel();
+        return;
+      }
+      /// Show Location
+      // print('Position Get: ${position.toString()}');
       setState(() {
         _position = position;
         if (buildingData != null) {
@@ -163,7 +184,7 @@ class _BuildingPageState extends State<BuildingPage>{
                         left: BorderSide(width: 2.0, color: colorThemeLight))),
               ),
             ),
-            subtitle: Padding(
+            subtitle: appSetting.showNearbyBuilding ? Padding(
               padding: const EdgeInsets.all(3.0),
               child: Container(
                 child: Padding(
@@ -174,7 +195,7 @@ class _BuildingPageState extends State<BuildingPage>{
                     border: Border(
                         left: BorderSide(width: 1.5, color: colorThemeLight))),
               ),
-            ),
+            ) : null,
             trailing: GestureDetector(
                 onTap: () => launch('https://www.google.com/maps/search/?api=1&query=${building.latitude}%2C${building.longitude}'),
                 child: Icon(Icons.map)

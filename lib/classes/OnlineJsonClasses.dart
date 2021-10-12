@@ -319,7 +319,6 @@ class EnrolledClass {
 
     List<LessonTime> validLessonTimes = [];
     this.lessonTimes.forEach((lt) {
-      //if (lt.isBetweenDate(CustomDate.fromDateTime(DateTime.now())))
       if (lt.isBetweenDate(date)) validLessonTimes.add(lt);
     });
 
@@ -335,6 +334,21 @@ class EnrolledClass {
     return validTimeslots[0];
   }
 
+  String get briefTime {
+    List<Timeslot> allTimeslots = this.allTimeslots;
+    List<DayTimeslot> dayTimeslots = [];
+    Day.values.forEach((day) => dayTimeslots.add(DayTimeslot.filter(day, allTimeslots)));
+
+    String briefTime = '';
+    dayTimeslots.forEach((dayTimeslot) {
+      if (dayTimeslot.periods.isEmpty) return;
+      if (briefTime != '') briefTime += '\n';
+      briefTime += dayTimeslot.day.string + '\t';
+      dayTimeslot.periods.forEach((period) => briefTime += ' ' + period.toString());
+    });
+    return briefTime;
+  }
+
   @override
   bool operator ==(Object other) {
     if (!(other is EnrolledClass)) return false;
@@ -344,4 +358,10 @@ class EnrolledClass {
 
   @override
   int get hashCode => super.hashCode;
+
+  List<Timeslot> get allTimeslots {
+    List<Timeslot> timeslots = [];
+    this.lessonTimes.forEach((lessonTime) => timeslots.addAll(lessonTime.timeslots));
+    return timeslots;
+  }
 }

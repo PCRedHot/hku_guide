@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hku_guide/classes/AppSettingClass.dart';
 import 'package:hku_guide/classes/DateTimeClasses.dart';
 import 'package:hku_guide/classes/OnlineJsonClasses.dart';
 import 'package:hku_guide/tools/DataFetch.dart';
@@ -18,6 +20,7 @@ class HomePage extends StatefulWidget{
 class _HomePageState extends State<HomePage>{
 
   List<EnrolledClass> enrolledClasses;
+  AppSetting appSetting;
 
   final Color colorThemeDark = Color.fromRGBO(58, 66, 86, 1.0);
   final Color colorThemeLight = Color.fromRGBO(68, 76, 96, 1.0);
@@ -33,15 +36,33 @@ class _HomePageState extends State<HomePage>{
         enrolledClasses = value;
         PageStorage.of(context).writeState(context, enrolledClasses, identifier: 'enrolledClasses');
 
-        //TODO remove below
-        print(enrolledClasses.map((element) => element.title).toList());
-        print(getScheduleStringOnDate(CustomDate.today()));
+        /// Show Enrolled Class and today's schedule
+        // print(enrolledClasses.map((element) => element.title).toList());
+        // print(getScheduleStringOnDate(CustomDate.today()));
       });
-    }//TODO remove below
-    else{
-      print(enrolledClasses.map((element) => element.title).toList());
-      print(getScheduleStringOnDate(CustomDate.today()));
     }
+    /// Show Enrolled Class and today's schedule
+    // else{
+    //       print(enrolledClasses.map((element) => element.title).toList());
+    //       print(getScheduleStringOnDate(CustomDate.today()));
+    //     }
+
+
+    appSetting = PageStorage.of(context).readState(context, identifier: 'appSetting');
+    if (appSetting == null){
+      appSetting = AppSetting.defaultSetting();
+      getAppSettingData().then((setting) =>
+          setState(() {
+            appSetting = setting;
+            appSetting.checkNull();
+            PageStorage.of(context).writeState(context, appSetting, identifier: 'appSetting');
+          })
+      );
+    }else{
+      appSetting.checkNull();
+    }
+    /// Show current App Setting
+    // print('Setting ${appSetting.toString()}');
   }
 
   @override
@@ -73,8 +94,8 @@ class _HomePageState extends State<HomePage>{
   Widget _getLinkGridView(){
     return GridView.count(
       crossAxisCount: 4,
-      childAspectRatio: 5/7,
-      mainAxisSpacing: 2.0,
+      childAspectRatio: appSetting.mainPageLinkDescription ? 5/7 : 1,
+      mainAxisSpacing: appSetting.mainPageLinkDescription ? 2.0 : 8.0,
       crossAxisSpacing: 8.0,
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       children: _getLinkWidgets(),
@@ -84,7 +105,6 @@ class _HomePageState extends State<HomePage>{
 
 
   List<Widget> _getLinkWidgets(){
-    //.blurred(blur: 1.0, colorOpacity: 0.2, borderRadius: BorderRadius.circular(15.0),)
     return [
       [
         Color.fromRGBO(109, 188, 47, 1.0),
@@ -189,25 +209,12 @@ class _HomePageState extends State<HomePage>{
         Image.asset('assets/images/net_jobs.png', fit: BoxFit.cover,),
         'NETjobs', 'https://web2.cedars.hku.hk:4181/jobs/main.php'
       ],
-    ].map((item) =>
-      Column(
+    ].map((item) {
+      if (appSetting.mainPageLinkDescription) return Column(
         children: [
           Expanded(
             flex: 5,
-            child: GestureDetector(
-              onTap: () {launch(item[3]);},
-              child: Container(
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  semanticContainer: true,
-                  elevation: 5.0,
-                  color: item[0],
-                  child: item[1],
-                ),
-              ),
-            ),
+            child: _getLinkTopWidget(item),
           ),
           Expanded(
             flex: 2,
@@ -215,15 +222,33 @@ class _HomePageState extends State<HomePage>{
               softWrap: true,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color.fromRGBO(240, 240, 240, 1.0),
-                fontSize: 15.0,
-                fontWeight: FontWeight.w500
+                  color: Color.fromRGBO(240, 240, 240, 1.0),
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w500
               ),
             ),
           )
         ],
-      )
-    ).toList();
+      );
+      else return _getLinkTopWidget(item);
+    }).toList();
+  }
+
+  Widget _getLinkTopWidget(item){
+    return GestureDetector(
+      onTap: () {launch(item[3]);},
+      child: Container(
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          semanticContainer: true,
+          elevation: 5.0,
+          color: item[0],
+          child: item[1],
+        ),
+      ),
+    );
   }
 
   Widget _getTimetableCarouselWidget(){
@@ -294,60 +319,104 @@ class _HomePageState extends State<HomePage>{
   }
 
   Widget _getTimetableWidget(){
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0),
-      decoration: BoxDecoration(
-        color: colorThemeDark,
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 8.0, 40.0, 20.0),
-        child: Container(
-          width: double.infinity,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 5.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Text('Today\'s Schedule',
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                        color: Color.fromRGBO(246, 239, 238, 1.0),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black,
-                            blurRadius: 5,
-                            offset: Offset(-2, 2),
-                          ),
-                        ]
+    return GestureDetector(
+      onTap: _onTapTimetableWidget,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20.0),
+        decoration: BoxDecoration(
+          color: colorThemeDark,
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20.0, 8.0, 40.0, 20.0),
+          child: Container(
+            width: double.infinity,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 5.0),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text('Today\'s Schedule',
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                          color: Color.fromRGBO(246, 239, 238, 1.0),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black,
+                              blurRadius: 5,
+                              offset: Offset(-2, 2),
+                            ),
+                          ]
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(getScheduleStringOnDate(CustomDate.today()).map((e) => e = '- $e').toList().join('\n'),
-                    style: TextStyle(
-                      color: Color.fromRGBO(240, 236, 232, 1.0),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
+                Expanded(
+                  flex: 1,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(getScheduleStringOnDate(CustomDate.today()).map((e) => e = '- $e').toList().join('\n'),
+                      style: TextStyle(
+                        color: Color.fromRGBO(240, 236, 232, 1.0),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      )
                     )
-                  )
-                ),
-              )
-            ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  void _onTapTimetableWidget(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        title: Text('Enrolled Courses'),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState){
+            return Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.all(4.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: _getEnrolledCourseWidgets(setState),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  List<Widget> _getEnrolledCourseWidgets(StateSetter ss){
+    return enrolledClasses.map((ec) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: ListTile(
+          title: Text('${ec.courseCode}_${ec.subclassCode}\n${ec.title}'),
+          subtitle: Text('${ec.term}\n${ec.briefTime}'),
+          trailing: GestureDetector(
+          onTap: () {removeEnrolledClass(ss, ec);},
+              child: Icon(Icons.cancel_outlined)
+          ),
+      ),
+    )).toList();
+  }
+
+  void removeEnrolledClass(StateSetter ss, EnrolledClass ec){
+    ss(() => enrolledClasses.remove(ec));
+    setState(() => enrolledClasses.remove(ec));
+    PageStorage.of(context).writeState(context, enrolledClasses, identifier: 'enrolledClasses');
+    updateEnrolledClassData(enrolledClasses);
+  }
 
   List<String> getScheduleStringOnDate(CustomDate d){
     if (enrolledClasses == null) return [];

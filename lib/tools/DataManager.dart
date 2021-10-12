@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:hku_guide/classes/AppSettingClass.dart';
 import 'package:hku_guide/classes/OnlineJsonClasses.dart';
 import 'package:hku_guide/tools/DataFetch.dart';
 import 'package:hku_guide/tools/LocalDoc.dart';
@@ -70,4 +71,13 @@ Future<List<EnrolledClass>> getEnrolledClassData() async{
 void updateEnrolledClassData(List<EnrolledClass> enrolledClasses) async{
   print('Update Enrolled Class Data To Local');
   writeEnrolledClassesToLocal(enrolledClasses);
+}
+
+Future<AppSetting> getAppSettingData() async{
+  return getAppSettingFromLocal();
+}
+
+void updateAppSettingData(AppSetting appSetting) {
+  print('Update App Setting Data To Local');
+  writeAppSettingToLocal(appSetting);
 }
