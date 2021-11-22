@@ -6,25 +6,33 @@ import 'package:hku_guide/tools/DataFetch.dart';
 import 'package:hku_guide/tools/LocalDoc.dart';
 
 Future<List> getBuildingData() async{
-  final localVersion = await getBuildingVersionFromLocal();
-  final onlineVersion = await fetchBuildingDataVersionFromAPI();
+  try{
+    final localVersion = await getBuildingVersionFromLocal();
+    final onlineVersion = await fetchBuildingDataVersionFromAPI();
 
-  print('Local Version: $localVersion');
-  print('API Version: $onlineVersion');
+    print('Local Version: $localVersion');
+    print('API Version: $onlineVersion');
 
-  if (localVersion.compareTo(onlineVersion) != 0){
-    writeBuildingVersionToLocal(onlineVersion);
-    return updateBuildingData();
+    if (localVersion.compareTo(onlineVersion) != 0){
+      writeBuildingVersionToLocal(onlineVersion);
+      return updateBuildingData();
+    }
+  }catch (e){
+
   }
 
-  final localBuildingData = await getBuildingDataFromLocal();
-  if (localBuildingData.isEmpty){
-    print('File Empty');
+  try{
+    final localBuildingData = await getBuildingDataFromLocal();
+    if (localBuildingData.isEmpty){
+      print('File Empty');
+      return updateBuildingData();
+    }
+    print('Get From File');
+    return localBuildingData;
+  }catch (e){
+    print('File Error');
     return updateBuildingData();
   }
-
-  print('Get From File');
-  return localBuildingData;
 }
 
 Future<List> updateBuildingData() async {
@@ -35,25 +43,34 @@ Future<List> updateBuildingData() async {
 }
 
 Future<Map> getClassData() async{
-  final localVersion = await getClassVersionFromLocal();
-  final onlineVersion = await fetchClassDataVersionFromAPI();
+  try{
+    final localVersion = await getClassVersionFromLocal();
+    final onlineVersion = await fetchClassDataVersionFromAPI();
 
-  print('Local Version: $localVersion');
-  print('API Version: $onlineVersion');
+    print('Local Version: $localVersion');
+    print('API Version: $onlineVersion');
 
-  if (localVersion.compareTo(onlineVersion) != 0){
-    writeClassVersionToLocal(onlineVersion);
+    if (localVersion.compareTo(onlineVersion) != 0){
+      writeClassVersionToLocal(onlineVersion);
+      return updateClassData();
+    }
+  }catch (e){
+
+  }
+
+  try{
+    final localClassData = await getClassDataFromLocal();
+    if (localClassData.isEmpty){
+      print('File Empty');
+      return updateClassData();
+    }
+    print('Get From File');
+    return localClassData;
+  }catch (e){
+    print('File Error');
     return updateClassData();
   }
 
-  final localClassData = await getClassDataFromLocal();
-  if (localClassData.isEmpty){
-    print('File Empty');
-    return updateClassData();
-  }
-
-  print('Get From File');
-  return localClassData;
 }
 
 Future<Map> updateClassData() async {

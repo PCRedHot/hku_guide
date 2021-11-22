@@ -104,9 +104,7 @@ Future<List<EnrolledClass>> getEnrolledClassesFromLocal() async{
     final contents = await file.readAsString();
     List<dynamic> jsonObjects = jsonDecode(contents);
     return jsonObjects.map((e) => EnrolledClass.fromJson(e)).toList();
-  } catch (e, stacktrace){
-    print(e);
-    print(stacktrace);
+  } catch (e){
     return [];
   }
 }

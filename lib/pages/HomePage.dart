@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage>{
             borderRadius: BorderRadius.circular(15.0),
             overlay: Text('Portal',
               style: TextStyle(
-                fontSize: 18.0,
+                fontSize: 16.0,
                 fontWeight: FontWeight.w500,
                 color: Color.fromRGBO(230, 230, 230, 1.0),
                 shadows: [
@@ -431,6 +431,10 @@ class _HomePageState extends State<HomePage>{
   }
 
   void _showAcademicCalendar() async{
-    launch(await getCalendarURLString());
+    try{
+      launch(await getCalendarURLString());
+    }catch (e){
+
+    }
   }
 }
